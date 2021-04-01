@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+  labels:
+    name: example-pod
+spec:
+  containers:
+  - name: example-pod
+    image: localhost:32000/test
+    imagePullPolicy: IfNotPresent
+    env:
+      - name: MODE
+        value: http # Set to "http-socket" as an alternative
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "2000m"
+    ports:
+      - containerPort: 8080
