@@ -11,20 +11,27 @@ I set a memory limit of 512Mi for testing.
 3. A `kind` cluster on Ubuntu 20.10
 4. Straight `docker run` both on Fedora 33 and Ubuntu 20.10
 5. Straight `podman run` on Fedora 33
+6. A `k3s` cluster on Fedora 33
 
 Docker version: 20.10.5
+
 Kind version: `kind v0.10.0 go1.15.7 linux/amd64`
+
 Podman version: `3.0.1`
 
 ## Running this
 
-There's two `run-*.sh` on this repository. One runs in a `kind` cluster (assuming the default name) and the other runs via `docker run`.
+There's three `run-*.sh` on this repository:
 
-Both build the image, and the `run-kind.sh` script also loads it into the cluster node.
+- `run-kind.sh` runs in a `kind` cluster (assuming the default name)
+- `run-docker.sh` runs via `docker run`
+- `run-k3s` runs via a `k3s` cluster (assuming on the local machine)
+
+Both build the image, and the `run-kind.sh` and `run-k3s.sh` scripts also load it into their cluster nodes.
 
 ## What happens
 
-Setups 1, 3, 4 and 5 all work well with this image. Scenario 2 only works with `MODE=http-socket`. When running with `MODE=http`, it is either OOM-killed or hangs.
+Setups 1, 3, 4, 5 and 6 all work well with this image. Scenario 2 only works with `MODE=http-socket`. When running with `MODE=http`, it is either OOM-killed or hangs.
 
 ## What I tried doing to get scenario 2 to work
 
@@ -125,3 +132,14 @@ root          20  0.0  0.0   9396  3088 pts/0    Rs+  08:31   0:00 ps aux
 ```
 
 Notice the much higher CPU usage too.
+
+
+### `ps` (via pod on `k3s`, with `resources.limits.memory: 512Mi`)
+
+```
+➜  kind-uwsgi-error-example git:(main) ✗ kubectl exec -it example-pod -- ps aux
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  0.2  0.1  73084 31476 ?        Ss   09:14   0:00 uwsgi --http 
+root           7  0.0  0.0  59008 10988 ?        S    09:14   0:00 uwsgi --http 
+root          14  0.0  0.0   9396  3000 pts/0    Rs+  09:16   0:00 ps aux
+```
