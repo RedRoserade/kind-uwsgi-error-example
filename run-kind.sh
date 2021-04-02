@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
+set -e
+
 docker build -t localhost:32000/test .
 
 kind load docker-image localhost:32000/test
+
+kubectl delete -f pod.yaml || true
 
 kubectl create -f pod.yaml
 
