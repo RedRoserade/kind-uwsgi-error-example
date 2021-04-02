@@ -52,6 +52,7 @@ For some reason, `http-socket` works. From what I can tell, it launches one less
 - Disable SELinux
 - Running with `securityContext.capabilities.add = ["ALL"]`
 - Running with `securityContext.runAsUser = 1000`
+- Disabling swap via `swapoff -a`: https://github.com/kubernetes-sigs/kind/issues/2175#issuecomment-812457026
 
 ## Logs
 
