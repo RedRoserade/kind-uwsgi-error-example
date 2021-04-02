@@ -10,7 +10,7 @@ docker build -t localhost:32000/test .
 
 docker rm -f ${CONTAINER_NAME} || true
 
-docker run -d --memory 512M -p 8080:8080 -e MODE=${MODE} --name test-uwsgi-docker --name ${CONTAINER_NAME} localhost:32000/test
+docker run -d --memory 512M -p 8080:8080 -e MODE=${MODE} --name ${CONTAINER_NAME} localhost:32000/test
 
 echo "Container running."
 echo "Now, try reaching it:"

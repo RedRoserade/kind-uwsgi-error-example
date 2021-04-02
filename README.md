@@ -40,19 +40,15 @@ For some reason, `http-socket` works. From what I can tell, it launches one less
 
 ### What doesn't work
 
-#### Enable cgroups v1
-
-Didn't do anything.
-
-#### Try alpine-based versions and python 3.9-based versions
-
-Also didn't do anything.
-
-#### Disable SELinux
-
-Didn't do anything.
+- Enable cgroups v1
+- Try alpine-based versions and python 3.9-based versions
+- Disable SELinux
+- Running with `securityContext.capabilities.add = ["ALL"]`
+- Running with `securityContext.runAsUser = 1000`
 
 ## Logs
+
+### dmesg
 
 The following logs can be found via `dmesg -T`:
 
@@ -107,3 +103,25 @@ The following logs can be found via `dmesg -T`:
 [Thu Apr  1 16:45:10 2021] [  11638]     0 11638  2109807    76320  9076736  1045307          -997 uwsgi
 [Thu Apr  1 16:45:10 2021] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=a07d3c191742700df28b349710c93b2014b255b22364decb09b53ca123fa8272,mems_allowed=0,oom_memcg=/docker/428406e4f18a1cb65e9691d40b63f3d92c95c1b0d15b5c427bed470b6832cd6e/kubelet/kubepods/pod1788d98a-0700-426a-8701-2312e4cc2163,task_memcg=/docker/428406e4f18a1cb65e9691d40b63f3d92c95c1b0d15b5c427bed470b6832cd6e/kubelet/kubepods/pod1788d98a-0700-426a-8701-2312e4cc2163/a07d3c191742700df28b349710c93b2014b255b22364decb09b53ca123fa8272,task=uwsgi,pid=11638,uid=0
 ```
+
+### `ps` (via `docker run`)
+
+```
+➜  kind-uwsgi-error-example git:(main) ✗ docker exec -it test-mem-usage ps aux
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  1.4  0.1  73080 31448 ?        Ss   08:28   0:00 uwsgi --http 
+root           7  0.0  0.0  59008 10996 ?        S    08:28   0:00 uwsgi --http 
+root          33  0.0  0.0   9396  2988 pts/0    Rs+  08:29   0:00 ps aux
+```
+
+### `ps` (via pod on `kind`, with `resources.limits.memory: 12Gi`)
+
+```
+➜  kind-uwsgi-error-example git:(main) ✗ kubectl exec -it example-pod -- ps aux
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  2.8  0.1  73084 26164 ?        Ss   08:31   0:00 uwsgi --http 
+root           7 47.3 52.3 8439420 8390708 ?     S    08:31   0:12 uwsgi --http 
+root          20  0.0  0.0   9396  3088 pts/0    Rs+  08:31   0:00 ps aux
+```
+
+Notice the much higher CPU usage too.
